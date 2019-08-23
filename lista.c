@@ -2,21 +2,22 @@
 #include <stdlib.h>
 
 
-struct cell{
+typedef struct cell{
 	int value;
-	cell * next;
-};
+	struct cell * next;
+}cell;
 
 cell * new_cell(){
 	return (cell*) malloc(sizeof(cell));
 }
 
 void print_list(cell * current){
-	printf("List: "); 
-	do{
+	printf("List: ");
+	while(current != NULL){
+		
 		printf("%d ",current->value);
 		current = current->next;
-	}while(current != NULL);
+	}
 	printf("\n");
 }
 
@@ -33,20 +34,36 @@ void push(cell ** last, int val){
 }
 
 int pop(cell * current, cell ** last){
+	if(current == NULL){
+		printf("Empty list! Can\'t pop!\n");
+		exit(1);
+	}
 	
-	do{
+	while(current->next != *last && current->next != NULL){
 		current = current->next;
-	}while(current->next->next != NULL);
+	}
 	
-	int value = current->next->value;
-	free(current->next);
-	current->next = NULL;
-	*last = current;
+	int value;
+	if(current->next == NULL){
+		value = current->value;
+		free(current);
+		*last = NULL;	
+	}else{
+		value = current->next->value;
+		free(current->next);
+		current->next = NULL;
+		*last = current;
+	}
 	
 	return value;
 }
 
 int shift(cell ** first){
+	if(*first == NULL){
+		printf("Empty list! Can\'t shift!\n");
+		exit(1);
+	}	
+
 	cell * current = *first;
 	int value = current->value;
 	*first = current->next;
@@ -75,9 +92,10 @@ int main(){
 	first->value = 0;
 	first->next = NULL;
 	cell * last;
-	
+	last = first;
 	cell * current = first;
-	for(int i = 1; i < 10; i++){
+	int i = 1;
+	for(; i < 10; i++){
 		current->next = new_cell();
 		current = current->next;
 		current->value = i;
@@ -99,12 +117,12 @@ int main(){
 	printf("First: %d, Last: %d\n", first->value, last->value);
 	
 	printf("Poped: %d\n", pop(first, &last));
-	printf("Poped: %d\n", pop(first, &last));
+	print_list(first);
+	printf("First: %d, Last: %d\n", first->value, last->value);
 	
 	print_list(first);
 	printf("First: %d, Last: %d\n", first->value, last->value);
 	
-	printf("Shifted: %d\n", shift(&first));
 	printf("Shifted: %d\n", shift(&first));
 	printf("Shifted: %d\n", shift(&first));
 	
