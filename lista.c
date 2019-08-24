@@ -11,29 +11,43 @@ cell * new_cell(){
 	return (cell*) malloc(sizeof(cell));
 }
 
-void print_list(cell * current){
+void print_list(cell ** first){
+	cell * current = *first;
 	printf("List: ");
-	while(current != NULL){
-		
-		printf("%d ",current->value);
-		current = current->next;
+	
+//	printf("%d\n", current);
+	if(current == NULL){
+		printf("%s", "Empty list! Nothing to print!");
+	}else{
+		while(current != NULL){
+			printf("%d ",current->value);
+			current = current->next;
+		}	
 	}
+	
 	printf("\n");
 }
 
-void push(cell ** last, int val){
+void push(cell ** first, cell ** last, int val){
 	printf("Pushing: %d\n", val);
 	cell * next = new_cell();
 	next->value = val;
 	next->next = NULL;
 	
 	cell * previous = *last;
-	previous->next = next;	
+	if(previous == NULL){
+		previous = next;
+		*first = previous;
+	}else{
+		previous->next = next;
+	}	
 	
 	*last = next;		
 }
 
-int pop(cell * current, cell ** last){
+int pop(cell ** first, cell ** last){
+	cell * current = *first;
+	
 	if(current == NULL){
 		printf("Empty list! Can\'t pop!\n");
 		exit(1);
@@ -44,10 +58,12 @@ int pop(cell * current, cell ** last){
 	}
 	
 	int value;
+	
 	if(current->next == NULL){
 		value = current->value;
 		free(current);
 		*last = NULL;	
+		*first = NULL;
 	}else{
 		value = current->next->value;
 		free(current->next);
@@ -58,7 +74,7 @@ int pop(cell * current, cell ** last){
 	return value;
 }
 
-int shift(cell ** first){
+int shift(cell ** first, cell ** last){
 	if(*first == NULL){
 		printf("Empty list! Can\'t shift!\n");
 		exit(1);
@@ -67,20 +83,28 @@ int shift(cell ** first){
 	cell * current = *first;
 	int value = current->value;
 	*first = current->next;
-	current->next = NULL;
-	free(current);
+	if(*first == NULL){
+		*last = NULL;
+	}else{
+		current->next = NULL;
+		free(current);	
+	}
+	
 	
 	return value;
 }
 
-void unshift(cell ** first, int val){
+void unshift(cell ** first, cell ** last, int val){
 	printf("Unshifting: %d\n", val);
-	
-	cell * current = *first;
 	
 	cell * top = new_cell();
 	top->value = val;
-	top->next = current;
+	if(*first == NULL){
+		top->next = NULL;
+		*last = top;
+	}else{
+		top->next = *first;	
+	}
 	
 	*first = top;
 }
@@ -88,52 +112,34 @@ void unshift(cell ** first, int val){
 int main(){
 			
 	// Tests
-	cell * first = new_cell();
-	first->value = 0;
-	first->next = NULL;
-	cell * last;
-	last = first;
-	cell * current = first;
-	int i = 1;
-	for(; i < 10; i++){
-		current->next = new_cell();
-		current = current->next;
-		current->value = i;
-		current->next = NULL;
-		
-		if(i==9)
-			last = current;
-	}
+	cell * first = NULL;
+	cell * last = NULL;	
+	print_list(&first);
 	
+	push(&first, &last, 10);
+	push(&first, &last, 11);
+	push(&first, &last, 12);
+	push(&first, &last, 13);
+	print_list(&first);
 	
-	print_list(first);
-	printf("First: %d, Last: %d\n", first->value, last->value);
+	printf("Poped: %d\n", pop(&first, &last));
+	print_list(&first);
 	
-	push(&last, 10); 
-	push(&last, 11); 
-	push(&last, 12); 	
-		
-	print_list(first);
-	printf("First: %d, Last: %d\n", first->value, last->value);
+	printf("Poped: %d\n", pop(&first, &last));printf("%d %d\n", first, last);
+	print_list(&first);
 	
-	printf("Poped: %d\n", pop(first, &last));
-	print_list(first);
-	printf("First: %d, Last: %d\n", first->value, last->value);
+	printf("Shifted: %d\n", shift(&first, &last));
+	print_list(&first);
 	
-	print_list(first);
-	printf("First: %d, Last: %d\n", first->value, last->value);
+	printf("Shifted: %d\n", shift(&first, &last));
+	print_list(&first);
 	
-	printf("Shifted: %d\n", shift(&first));
-	printf("Shifted: %d\n", shift(&first));
+	unshift(&first, &last, 31); 
+	print_list(&first);
 	
-	print_list(first);
-	printf("First: %d, Last: %d\n", first->value, last->value);
+	unshift(&first, &last, 32); 
+	print_list(&first);
 	
-	unshift(&first, -1); 
-	unshift(&first, -2); 	
-		
-	print_list(first);
-	printf("First: %d, Last: %d\n", first->value, last->value);
 	// end of Tests
 
 	exit(0);
