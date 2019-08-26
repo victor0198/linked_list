@@ -13,13 +13,17 @@ typedef struct list{
 	int len;
 }list;
 
+const struct list EMPTY_LIST = {
+    NULL, NULL, 0
+};
+
 cell * new_cell(){
 	return (cell*) malloc(sizeof(cell));
 }
 
 void print_l(list obj){
 	cell * current = obj.first;
-	printf("List: ");
+	printf("List(len=%d):\n", obj.len);
 	
 	if(current == NULL){
 		printf("%s", "Empty list! Nothing to print!");
@@ -48,7 +52,8 @@ void push_l(list * obj, int val){
 		previous->next = next;
 	}
 	
-	obj->last = next;		
+	obj->last = next;
+	obj->len += 1;		
 }
 
 int pop_l(list * obj){
@@ -77,6 +82,8 @@ int pop_l(list * obj){
 		obj->last = current;
 	}
 	
+	obj->len -= 1;
+	
 	return value;
 }
 
@@ -95,6 +102,8 @@ int shift_l(list * obj){
 		current->next = NULL;
 		free(current);	
 	}
+	
+	obj->len -= 1;
 		
 	return value;
 }
@@ -112,16 +121,15 @@ void unshift_l(list * obj, int val){
 	}
 	
 	obj->first = top;
+	
+	obj->len += 1;
 }
 
 int main(){
 			
 	// Tests
 	
-	list obj;
-	obj.first = NULL;
-	obj.last = NULL;
-	obj.len = 0;
+	list obj = EMPTY_LIST;
 	
 	print_l(obj);
 	
